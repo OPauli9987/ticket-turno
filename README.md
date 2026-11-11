@@ -47,3 +47,134 @@ erDiagram
         string fecha_modificacion
     }
 ```
+
+# Modelo de clases
+
+```mermaid
+classDiagram
+    class Catalogo {
+        +int id
+        +str nombre
+    }
+    Catalogo <|-- Municipio
+    Catalogo <|-- NivelEducativo
+    Catalogo <|-- Asunto
+
+    class Solicitud {
+        +str curp PK
+        +str nombre_alumno
+        +str apellido_paterno
+        +str apellido_materno
+        +str nombre_tramitante
+        +str telefono
+        +str telefono_alterno
+        +str correo
+        +int numero_turno
+        +str estatus
+        +str fecha_registro
+        +nombre_completo()
+    }
+    class Administrador {
+        +int id
+        +str usuario
+        +str nombre
+        +str salt
+        +str password_hash
+    }
+
+    Solicitud "*" --> "1" Municipio
+    Solicitud "*" --> "1" NivelEducativo
+    Solicitud "*" --> "1" Asunto
+
+    class Database {
+        <<Singleton>>
+        +get_instance()
+        +connect()
+        +close()
+    }
+    class Session {
+        <<Singleton>>
+        +iniciar()
+        +clear()
+    }
+    class Subject {
+        <<Observer>>
+        +attach()
+        +detach()
+        +notify()
+    }
+
+    class CatalogoDAO {
+        +listar()
+        +insertar()
+        +actualizar()
+        +eliminar()
+    }
+    CatalogoDAO <|-- MunicipioDAO
+    CatalogoDAO <|-- NivelEducativoDAO
+    CatalogoDAO <|-- AsuntoDAO
+    class SolicitudDAO {
+        +insertar()
+        +actualizar()
+        +buscar_por_curp()
+        +buscar_por_nombre()
+        +contar_por_estatus()
+    }
+    class AdministradorDAO {
+        +buscar_por_usuario()
+    }
+
+    class SolicitudController {
+        +registrar()
+        +modificar_publico()
+        +buscar()
+        +cambiar_estatus()
+        +eliminar()
+    }
+    class CatalogoController {
+        +listar()
+        +crear()
+        +actualizar()
+        +eliminar()
+    }
+    class AuthController {
+        +login()
+        +logout()
+    }
+    class DashboardController {
+        +conteo_por_estatus()
+    }
+    class AppController {
+        +cerrar_sistema()
+    }
+
+    SolicitudController --> SolicitudDAO
+    SolicitudController *-- Subject
+    CatalogoController --> CatalogoDAO
+    AuthController --> AdministradorDAO
+    AuthController --> Session
+    AppController *-- SolicitudController
+    AppController *-- CatalogoController
+    AppController *-- AuthController
+    AppController *-- DashboardController
+    SolicitudDAO --> Database
+    CatalogoDAO --> Database
+
+    class MainWindow
+    class RegistroView
+    class ModificarView
+    class LoginView
+    class AdminSolicitudesView
+    class CatalogoView
+    class DashboardView
+    class ObserverView {
+        <<Observer>>
+        +update()
+    }
+    ObserverView <|-- AdminSolicitudesView
+    ObserverView <|-- DashboardView
+    MainWindow --> AppController
+```
+Validación: `CurpValidator`, `SolicitudValidator`. Seguridad: `PasswordHasher`.
+Comprobante: `ComprobanteService`.
+
